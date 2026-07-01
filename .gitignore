@@ -1,0 +1,40 @@
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Dependencias de Laravel (se instalan vía Composer/NPM)
+/api/vendor/
+/api/node_modules/
+
+# Artefactos generados por Laravel
+/api/storage/*.key
+/api/storage/framework/cache/*
+/api/storage/framework/sessions/*
+/api/storage/framework/views/*
+/api/storage/logs/*
+!/api/storage/framework/cache/.gitignore
+!/api/storage/framework/sessions/.gitignore
+!/api/storage/framework/views/.gitignore
+!/api/storage/logs/.gitignore
+/api/bootstrap/cache/*.php
+/api/public/hot
+/api/public/storage
+
+# Documentación generada de Swagger (se regenera con un comando)
+/api/storage/api-docs/
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs sueltos
+*.log
+
+#documentacion
+/fases
+/docs
+plan.md
+/.cursor

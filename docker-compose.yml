@@ -1,0 +1,47 @@
+name: aem-api
+
+services:
+  api-server:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: aem-api-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/var/www/html
+    depends_on:
+      db-postgres:
+        condition: service_healthy
+    networks:
+      - aem-network
+
+
+  db-postgres:
+    image: postgres:16-alpine
+    container_name: aem-db-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aem_db
+      POSTGRES_USER: aem_user
+      POSTGRES_PASSWORD: aem_dev_test2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - aem_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aem_user -d aem_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aem-network
+  
+networks:
+  aem-network:
+    driver: bridge
+
+volumes:
+  aem_pgdata:
+    name: aem_pgdata
