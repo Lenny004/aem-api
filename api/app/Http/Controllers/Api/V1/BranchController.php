@@ -51,4 +51,14 @@ class BranchController extends Controller
 
         return response()->noContent();
     }
+
+    public function activate(int $id): BranchResource
+    {
+        return new BranchResource($this->service->activate($id));
+    }
+
+    public function deactivate(int $id): BranchResource
+    {
+        return new BranchResource($this->service->deactivate($id));
+    }
 }
