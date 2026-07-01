@@ -18,6 +18,10 @@ class Branch extends Model
 
     protected $table = 'branchs';
 
+    protected $attributes = [
+        'branchs_status' => 'active',
+    ];
+
     protected $fillable = [
         'enterprise_id',
         'name',
