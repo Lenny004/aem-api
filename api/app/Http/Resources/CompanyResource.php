@@ -5,6 +5,10 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Serializa un Company al JSON público de la API.
+ * Expone status (valor crudo) y status_label (texto para UI) por separado.
+ */
 class CompanyResource extends JsonResource
 {
     public function toArray(Request $request): array

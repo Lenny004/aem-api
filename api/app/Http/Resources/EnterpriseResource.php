@@ -5,6 +5,10 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Serializa una Enterprise al JSON público de la API.
+ * La clave company solo aparece si el controlador cargó la relación con with()/load().
+ */
 class EnterpriseResource extends JsonResource
 {
     public function toArray(Request $request): array
@@ -19,6 +23,7 @@ class EnterpriseResource extends JsonResource
             'status' => $this->enterprises_status->value,
             'status_label' => $this->enterprises_status->label(),
             'created_at' => $this->created_at,
+            // whenLoaded evita N+1: no dispara consultas extra si nadie pidió el padre.
             'company' => CompanyResource::make($this->whenLoaded('company')),
         ];
     }

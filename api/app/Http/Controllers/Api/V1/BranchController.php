@@ -12,6 +12,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
+/**
+ * Capa de entrada HTTP para Branch (sucursal).
+ * Acepta filtros por empresa padre, municipio y estado en index().
+ */
 class BranchController extends Controller
 {
     public function __construct(private readonly BranchService $service)

@@ -4,6 +4,10 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Valida POST /api/v1/enterprises.
+ * exists:companys,id rechaza un 422 rápido; EnterpriseService además verifica que el padre esté activo.
+ */
 class StoreEnterpriseRequest extends FormRequest
 {
     public function authorize(): bool

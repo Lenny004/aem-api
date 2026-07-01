@@ -9,6 +9,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+/**
+ * Usuario de autenticación de la API.
+ * Implementa JWTSubject para que tymon/jwt-auth pueda emitir y validar tokens.
+ */
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<UserFactory> */
@@ -48,11 +52,13 @@ class User extends Authenticatable implements JWTSubject
         ];
     }
 
+    /** Identificador que se guarda dentro del payload del token (normalmente el PK). */
     public function getJWTIdentifier(): mixed
     {
         return $this->getKey();
     }
 
+    /** Claims personalizados adicionales en el token; vacío = solo el sub estándar. */
     public function getJWTCustomClaims(): array
     {
         return [];

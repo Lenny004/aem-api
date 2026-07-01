@@ -5,6 +5,10 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Valida POST /api/v1/branchs.
+ * municipality_codigo se cruza con config/municipalities.php (misma regla que el CHECK de Postgres).
+ */
 class StoreBranchRequest extends FormRequest
 {
     public function authorize(): bool

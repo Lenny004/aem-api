@@ -6,6 +6,10 @@ use App\Enums\EnterpriseStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Valida PATCH/PUT /api/v1/enterprises/{id}.
+ * No incluye company_id: mover una empresa a otro holding es una operación distinta, no un PATCH genérico.
+ */
 class UpdateEnterpriseRequest extends FormRequest
 {
     public function authorize(): bool

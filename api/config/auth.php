@@ -43,6 +43,7 @@ return [
             'provider' => 'users',
         ],
 
+        // Guard stateless para la API REST — valida JWT en cada request (Fase 6).
         'api' => [
             'driver' => 'jwt',
             'provider' => 'users',
