@@ -69,7 +69,7 @@ CREATE TABLE branchs (
     updated_at TIMESTAMP NOT NULL DEFAULT now(),
     deleted_at TIMESTAMP,
 
-    CONSTRAINT chk_branchs_status CHECK (branchs_status IN ('active', 'inactive')),
+    CONSTRAINT chk_branchs_status CHECK (branchs_status IN ('active', 'inactive', 'suspended')),
 
     -- Catálogo de los 44 municipios de El Salvador
     CONSTRAINT chk_branchs_municipality_codigo CHECK (municipality_codigo IN (
