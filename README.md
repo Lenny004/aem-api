@@ -158,13 +158,62 @@ Ver `api/.env.example` para la lista completa y comentada. Las más relevantes:
 
 ```
 aem-api/
-├── api/                  # Proyecto Laravel completo (código de la aplicación)
-│   ├── app/
-│   ├── docker/entrypoint.sh
-│   ├── Dockerfile
-│   └── ...
-├── docs/ddl/             # Esquema SQL de referencia (schema.sql, seed.sql)
-├── docker-compose.yml    # api-server + db-postgres, red interna, volumen nombrado, healthcheck
-└── README.md
+├── docker-compose.yml          # Orquesta api-server + db-postgres (red interna, volumen nombrado, healthcheck)
+├── README.md
+├── docs/
+│   └── ddl/                    # Esquema SQL de referencia, independiente de las migraciones de Laravel
+│       ├── schema.sql          #   → mismas tablas/FKs/índices/CHECKs, en SQL plano y comentado
+│       └── seed.sql            #   → datos de ejemplo equivalentes al DatabaseSeeder
+└── api/                         # Proyecto Laravel — todo el código de la aplicación vive aquí
+    ├── Dockerfile               # Imagen PHP 8.4-cli + extensiones (pdo_pgsql) + Composer
+    ├── docker/entrypoint.sh     # Arranque automático: .env, APP_KEY, JWT_SECRET, migrate, seed, swagger
+    ├── routes/api.php           # Único punto donde se declaran las URLs (prefijo /v1, grupos de middleware)
+    ├── app/
+    │   ├── Http/
+    │   │   ├── Controllers/Api/V1/  # CompanyController, EnterpriseController, BranchController, AuthController
+    │   │   ├── Requests/            # Store*/Update* — reglas de validación por endpoint (FormRequest)
+    │   │   └── Resources/           # Company/Enterprise/BranchResource — forma exacta del JSON de salida
+    │   ├── Services/                # Company/Enterprise/BranchService — reglas y flujo de negocio
+    │   ├── Repositories/
+    │   │   ├── Contracts/           # Interfaces (ej. CompanyRepositoryInterface) — de esto depende el Service
+    │   │   └── Eloquent/            # Implementación real con Eloquent — lo único que conoce el ORM
+    │   ├── Models/                  # Company, Enterprise, Branch, User — entidades Eloquent
+    │   ├── Enums/                   # CompanyStatus, EnterpriseStatus, BranchStatus (estados de negocio)
+    │   ├── Exceptions/Domain/        # *NotFoundException, *InactiveException — errores de negocio con su código HTTP
+    │   ├── OpenApi/                  # OpenApiSpec.php (Info/Server/SecurityScheme) + Schemas/ErrorResponse.php
+    │   └── Providers/                # Bindings Interface → Implementación (AppServiceProvider)
+    ├── database/
+    │   ├── migrations/              # Historial versionado del esquema (fuente de verdad real en runtime)
+    │   ├── factories/                # Company/Enterprise/BranchFactory — generan datos falsos para tests
+    │   └── seeders/DatabaseSeeder.php # Usuario admin@aem.test, idempotente (firstOrCreate)
+    ├── config/
+    │   ├── municipalities.php       # Catálogo de los 44 municipios de El Salvador (usado en validación y CHECK)
+    │   └── l5-swagger.php           # Config de rutas/generación de la documentación interactiva
+    ├── tests/
+    │   ├── Feature/Api/V1/          # Un test class por controlador — HTTP real de punta a punta
+    │   └── Unit/Services/           # Prueba la capa de Service en aislamiento (sin pasar por HTTP)
+    └── bootstrap/app.php            # Registro de middleware y manejo global de excepciones (withExceptions)
 ```
+
+## Flujo de una petición y el porqué de cada capa
+
+Cada capa existe para que un cambio en una de ellas **no obligue a tocar las demás**. Ejemplo real trazado archivo por archivo: `POST /api/v1/branchs` (crear una sucursal).
+
+1. **`routes/api.php`** — asocia la URL con el método del controlador. Es la única "tabla de contenidos" de la API; si un endpoint no aparece aquí, no existe. También decide qué pasa por el middleware `auth:api` (JWT) y qué no.
+
+2. **`app/Http/Requests/StoreBranchRequest.php`** (`FormRequest`) — Laravel lo resuelve **antes** de que el controlador ejecute una sola línea. Valida forma y sintaxis: campos requeridos, tipos, `municipality_codigo` dentro del catálogo de 44 municipios, `enterprise_id` que exista como fila. Si falla, responde **422** automáticamente y el controlador nunca se llega a ejecutar. *¿Por qué separado del controlador?* Porque la regla "¿este payload tiene la forma correcta?" es distinta de "¿qué hago con este payload?" — mezclarlas hace que el controlador crezca sin control.
+
+3. **`app/Http/Controllers/Api/V1/BranchController.php::store()`** — recibe el `StoreBranchRequest` ya validado, extrae los datos (`$request->validated()`) y **delega** al Service. No sabe qué es Eloquent, no sabe qué es una tabla SQL, no decide reglas de negocio. Solo traduce HTTP ↔ PHP: entra un `Request`, sale un `JsonResponse`.
+
+4. **`app/Services/BranchService.php::create()`** — aquí vive la regla de negocio real: "la `enterprise` padre debe existir (si no, `EnterpriseNotFoundException` → 404) y estar activa (si no, `EnterpriseInactiveException` → 409)". Para comprobarlo, no consulta la base de datos directamente — le pide el dato al Repository a través de su **interfaz** (`EnterpriseRepositoryInterface`), nunca a la clase concreta. *¿Por qué?* Así el Service se puede probar (`EnterpriseServiceTest`, Fase 9) sin necesidad de HTTP, y el motor de datos de abajo se podría cambiar sin tocar una sola línea de reglas de negocio.
+
+5. **`app/Repositories/Eloquent/BranchRepository.php`** (implementa `BranchRepositoryInterface`) — el único lugar del proyecto que escribe `Branch::create(...)`. Aquí y solo aquí se habla el lenguaje de Eloquent/SQL. Si el día de mañana el proyecto migrara de Eloquent a queries SQL puras, este es el único archivo que cambiaría.
+
+6. **`app/Models/Branch.php`** — el mapeo Eloquent de la tabla `branchs` (relaciones, casts a `Enum`, soft deletes). El Repository lo usa; el Service y el Controller nunca lo tocan directamente.
+
+7. **`app/Http/Resources/BranchResource.php`** — el Controller recibe el `Branch` recién creado del Service y lo envuelve en el Resource antes de responder. Decide exactamente qué campos salen en el JSON (y en qué forma) — independiente de qué columnas tiene la tabla por dentro. *¿Por qué no devolver el Model tal cual?* Porque el JSON público es un contrato con el cliente; la tabla interna puede tener columnas técnicas que nunca deberían salir.
+
+8. Si algo falla en cualquier punto de la cadena con una excepción no controlada explícitamente por el paso 4, **`bootstrap/app.php` (`withExceptions`)** la intercepta de forma global y la traduce a `{ "message": ..., "errors": ... }` con el código HTTP correcto — así ningún flujo nuevo puede "olvidarse" de manejar errores y filtrar un stack trace por accidente.
+
+En resumen, la petición viaja siempre en una sola dirección — `Route → FormRequest → Controller → Service → Repository → Model` — y la respuesta regresa por el mismo camino en sentido inverso, pasando por un `Resource` antes de salir. Ningún archivo se salta un escalón (ej. un Controller jamás llama a un Repository directamente).
 
