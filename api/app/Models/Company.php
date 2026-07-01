@@ -18,6 +18,10 @@ class Company extends Model
 
     protected $table = 'companys';
 
+    protected $attributes = [
+        'companys_status' => 'active',
+    ];
+
     protected $fillable = [
         'name',
         'doc_number',

@@ -17,6 +17,10 @@ class Enterprise extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $attributes = [
+        'enterprises_status' => 'active',
+    ];
+
     protected $fillable = [
         'company_id',
         'name',
