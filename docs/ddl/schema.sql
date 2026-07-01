@@ -8,7 +8,7 @@
 -- Tabla: companys (Holding / Consorcio)
 -- ---------------------------------------------------------------------
 CREATE TABLE companys (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     doc_number VARCHAR(20) NOT NULL,
     email VARCHAR(150) NULL,
@@ -29,8 +29,8 @@ COMMENT ON COLUMN companys.doc_number IS 'Identificador fiscal/registro único d
 -- Tabla: enterprises (Empresas Asociadas)
 -- ---------------------------------------------------------------------
 CREATE TABLE enterprises (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    company_id INT NOT NULL,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    company_id BIGINT NOT NULL,
     name VARCHAR(150) NOT NULL,
     doc_number VARCHAR(20) NOT NULL,
     email VARCHAR(150) NULL,
@@ -58,8 +58,8 @@ CREATE INDEX idx_enterprises_status ON enterprises (enterprises_status);
 -- Tabla: branchs (Sucursales)
 -- ---------------------------------------------------------------------
 CREATE TABLE branchs (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    enterprise_id INT NOT NULL,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    enterprise_id BIGINT NOT NULL,
     name VARCHAR(150) NOT NULL,
     address VARCHAR(255) NOT NULL,
     municipality_codigo VARCHAR(10) NOT NULL,
@@ -96,7 +96,7 @@ CREATE TABLE branchs (
 );
 
 COMMENT ON TABLE branchs IS 'Sucursales: puntos físicos de recolección de paquetes u operación, asignados a una enterprise.';
-COMMENT ON COLUMN branchs.municipality_codigo IS 'Código de municipio (catálogo de 44 municipios, reforma territorial 2024).';
+COMMENT ON COLUMN branchs.municipality_codigo IS 'Código de municipio';
 
 CREATE INDEX idx_branchs_enterprise_id ON branchs (enterprise_id);
 CREATE INDEX idx_branchs_status ON branchs (branchs_status);
