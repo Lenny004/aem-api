@@ -82,9 +82,8 @@ class BranchController extends Controller
         )),
         responses: [
             new OA\Response(response: 201, description: 'Creada', content: new OA\JsonContent(ref: '#/components/schemas/BranchResource')),
-            new OA\Response(response: 404, description: 'La empresa padre (enterprise_id) no existe', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')),
             new OA\Response(response: 409, description: 'La empresa padre está inactiva', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')),
-            new OA\Response(response: 422, description: 'Validación fallida (incluye municipality_codigo fuera del catálogo de 44 municipios)', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')),
+            new OA\Response(response: 422, description: 'Validación fallida (incluye municipality_codigo fuera del catálogo de 44 municipios, o enterprise_id que no existe en la tabla enterprises)', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')),
         ]
     )]
     public function store(StoreBranchRequest $request): JsonResponse
