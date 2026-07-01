@@ -51,4 +51,14 @@ class EnterpriseController extends Controller
 
         return response()->noContent();
     }
+
+    public function activate(int $id): EnterpriseResource
+    {
+        return new EnterpriseResource($this->service->activate($id));
+    }
+
+    public function deactivate(int $id): EnterpriseResource
+    {
+        return new EnterpriseResource($this->service->deactivate($id));
+    }
 }

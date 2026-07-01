@@ -51,4 +51,14 @@ class CompanyController extends Controller
 
         return response()->noContent();
     }
+
+    public function activate(int $id): CompanyResource
+    {
+        return new CompanyResource($this->service->activate($id));
+    }
+
+    public function deactivate(int $id): CompanyResource
+    {
+        return new CompanyResource($this->service->deactivate($id));
+    }
 }
