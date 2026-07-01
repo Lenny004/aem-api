@@ -12,7 +12,7 @@ return [
                 /*
                  * Route for accessing api documentation interface
                  */
-                'api' => 'api/documentation',
+                'api' => env('L5_SWAGGER_ROUTE', 'api/documentation'),
             ],
             'paths' => [
                 /*
@@ -52,9 +52,11 @@ return [
     'defaults' => [
         'routes' => [
             /*
-             * Route for accessing parsed swagger annotations.
+             * Route for accessing parsed swagger annotations (raw JSON/YAML + UI assets).
+             * Distinto de L5_SWAGGER_ROUTE (la página HTML) para evitar que ambas rutas
+             * colisionen en la misma URI cuando L5_SWAGGER_ROUTE=docs.
              */
-            'docs' => 'docs',
+            'docs' => 'api-docs',
 
             /*
              * Route for Oauth2 authentication callback.
