@@ -81,9 +81,8 @@ class EnterpriseController extends Controller
         )),
         responses: [
             new OA\Response(response: 201, description: 'Creada', content: new OA\JsonContent(ref: '#/components/schemas/EnterpriseResource')),
-            new OA\Response(response: 404, description: 'La compañía padre (company_id) no existe', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')),
             new OA\Response(response: 409, description: 'La compañía padre está inactiva', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')),
-            new OA\Response(response: 422, description: 'Validación fallida', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')),
+            new OA\Response(response: 422, description: 'Validación fallida (payload incompleto, doc_number duplicado, o company_id que no existe en la tabla companys)', content: new OA\JsonContent(ref: '#/components/schemas/ErrorResponse')),
         ]
     )]
     public function store(StoreEnterpriseRequest $request): JsonResponse
