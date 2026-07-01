@@ -15,6 +15,11 @@ COPY . .
 
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
+# sed -i 's/\r$//' es una red de seguridad: si el archivo se editó en Windows y quedó
+# con finales de línea CRLF, "#!/bin/sh" fallaría dentro del contenedor Linux con un
+# error críptico de "bad interpreter". Se normaliza a LF antes de darle permiso de ejecución.
+RUN sed -i 's/\r$//' docker/entrypoint.sh && chmod +x docker/entrypoint.sh
+
 EXPOSE 8000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+ENTRYPOINT ["docker/entrypoint.sh"]
