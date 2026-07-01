@@ -26,6 +26,21 @@ docker compose up -d --build
 
 Al arrancar, el contenedor `api-server` corre automáticamente (ver `api/docker/entrypoint.sh`): genera `.env`/`APP_KEY`/`JWT_SECRET` si faltan, instala dependencias si falta `vendor/`, corre migraciones, siembra un usuario de prueba y genera el JSON de OpenAPI — sin pasos manuales adicionales.
 
+> **Importante — espera a que termine el arranque antes de abrir el navegador.**
+> El comando anterior es el único paso requerido, pero en el **primer arranque** (o cuando no existe `api/vendor/` en el host) el entrypoint instala dependencias con Composer y eso puede tardar **3–5 minutos**. Durante ese tiempo `docker compose ps` puede mostrar el contenedor como `Up`, pero el servidor HTTP **aún no responde** — abrir `http://localhost:8000` o `/docs` antes de tiempo dará error de conexión aunque el sistema esté bien.
+>
+> Espera a ver este mensaje en los logs:
+>
+> ```bash
+> docker compose logs -f api-server
+> ```
+>
+> ```
+> INFO  Server running on [http://0.0.0.0:8000].
+> ```
+>
+> A partir de ahí, la API y la documentación ya están listas. Los arranques siguientes son mucho más rápidos porque `vendor/` ya queda en disco.
+
 La API queda disponible en **[http://localhost:8000](http://localhost:8000)**.
 
 Verifica que ambos servicios estén saludables:
@@ -78,6 +93,8 @@ Otros endpoints de sesión: `GET /v1/auth/me`, `POST /v1/auth/refresh`, `POST /v
 ```
 http://localhost:8000/docs
 ```
+
+Disponible solo después de que aparezca `Server running on [http://0.0.0.0:8000]` en los logs (ver sección de puesta en marcha).
 
 Documentado con atributos nativos de PHP 8 (`#[OA\...]`, no anotaciones DocBlock) sobre cada controlador y `Resource`. Incluye los 3 recursos de negocio + Auth, con parámetros de consulta, request bodies y **todos** los códigos HTTP reales (200/201/204/401/404/409/422). Para probar un endpoint protegido desde la UI: botón **Authorize** → pega el token obtenido arriba (sin la palabra `Bearer`, Swagger UI la agrega sola).
 
