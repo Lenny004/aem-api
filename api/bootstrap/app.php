@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
+// Throwable es una interfaz global de PHP: "use Throwable;" aquí no tendría efecto (y generaba un warning).
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
