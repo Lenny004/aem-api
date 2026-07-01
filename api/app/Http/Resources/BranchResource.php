@@ -5,6 +5,10 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Serializa una Branch al JSON público de la API.
+ * enterprise (y company anidado dentro) solo se incluyen si fueron cargados explícitamente.
+ */
 class BranchResource extends JsonResource
 {
     public function toArray(Request $request): array

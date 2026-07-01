@@ -6,14 +6,18 @@ use App\Http\Controllers\Api\V1\EnterpriseController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
+// Laravel aplica automáticamente el prefijo /api y el middleware group 'api'.
 Route::prefix('v1')->group(function () {
+    // Público: el cliente aún no tiene token.
     Route::post('auth/login', [AuthController::class, 'login']);
 
+    // Todo lo demás exige Authorization: Bearer <token>.
     Route::middleware('auth:api')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::post('auth/refresh', [AuthController::class, 'refresh']);
         Route::get('auth/me', [AuthController::class, 'me']);
 
+        // parameters(['companys' => 'id']) alinea {id} con show(int $id) del controlador.
         Route::apiResource('companys', CompanyController::class)->parameters(['companys' => 'id']);
         Route::patch('companys/{id}/activate', [CompanyController::class, 'activate']);
         Route::patch('companys/{id}/deactivate', [CompanyController::class, 'deactivate']);

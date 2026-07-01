@@ -6,6 +6,10 @@ use App\Enums\BranchStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Valida PATCH/PUT /api/v1/branchs/{id}.
+ * No permite cambiar enterprise_id — la sucursal permanece bajo la misma empresa padre.
+ */
 class UpdateBranchRequest extends FormRequest
 {
     public function authorize(): bool

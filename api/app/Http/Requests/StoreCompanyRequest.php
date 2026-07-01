@@ -4,8 +4,13 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Valida el cuerpo de POST /api/v1/companys antes de llegar al controlador.
+ * Solo verifica forma y unicidad; la lógica de negocio vive en CompanyService.
+ */
 class StoreCompanyRequest extends FormRequest
 {
+    // La autorización real la aplica el middleware auth:api (Fase 6).
     public function authorize(): bool
     {
         return true;

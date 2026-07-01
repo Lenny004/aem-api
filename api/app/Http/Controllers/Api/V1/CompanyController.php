@@ -12,6 +12,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
+/**
+ * Capa de entrada HTTP para Company (Holding).
+ * Solo valida → delega en CompanyService → serializa con CompanyResource.
+ * Recibe int $id en lugar de Route Model Binding para que el Service sea la única fuente de 404.
+ */
 class CompanyController extends Controller
 {
     public function __construct(private readonly CompanyService $service)
@@ -52,11 +57,17 @@ class CompanyController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * PATCH /companys/{id}/activate — revierte deactivate() sin borrar el registro.
+     */
     public function activate(int $id): CompanyResource
     {
         return new CompanyResource($this->service->activate($id));
     }
 
+    /**
+     * PATCH /companys/{id}/deactivate — cambia status a inactive; no hace soft delete.
+     */
     public function deactivate(int $id): CompanyResource
     {
         return new CompanyResource($this->service->deactivate($id));

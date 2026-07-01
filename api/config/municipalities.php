@@ -1,5 +1,8 @@
 <?php
 
+// Catálogo oficial de 44 municipios de El Salvador (reforma territorial 2024).
+// Debe coincidir con el CHECK de Postgres en create_branchs_table
+// y con la validación Rule::in() de los Form Requests de Branch.
 return [
     'codes' => [
         'AH-01', 'AH-02', 'AH-03',

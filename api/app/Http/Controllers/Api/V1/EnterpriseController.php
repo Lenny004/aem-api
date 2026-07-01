@@ -12,6 +12,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 
+/**
+ * Capa de entrada HTTP para Enterprise (empresa dentro de un Holding).
+ * Misma forma delgada que CompanyController: validar → Service → Resource.
+ */
 class EnterpriseController extends Controller
 {
     public function __construct(private readonly EnterpriseService $service)
